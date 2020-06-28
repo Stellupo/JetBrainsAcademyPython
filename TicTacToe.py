@@ -60,17 +60,55 @@ def diagonaler_check(liste, state_game):
             break
     liste_check(liste, state_game)
 
+def field_printing(field):
+    print("---------")
+    print("|" + " " + field[0][0] + " " + field[0][1] + " " + field[0][2] + " " + "|")
+    print("|" + " " + field[1][0] + " " + field[1][1] + " " + field[1][2] + " " + "|")
+    print("|" + " " + field[2][0] + " " + field[2][1] + " " + field[2][2] + " " + "|")
+    print("---------")
+
+#état du terrain
+answer = input("Enter cells: ")
+field = [
+        [answer[0], answer[1], answer[2]],
+        [answer[3], answer[4], answer[5]],
+        [answer[6], answer[7], answer[8]]
+        ]
+field_printing(field)
+while True:
+    move = input("Enter the coordinates: ").split(" ")
+    if len(move)!=2:  #vérifier qu'on ait le bon nombre d'arguments
+        print("You should enter numbers!")
+    else:
+        row_coordinate = move[0]
+        column_coordinate = move[1]
+        try:  #vérifier qu'on ait des chiffres
+            row_coordinate = int(row_coordinate)
+            column_coordinate = int(column_coordinate)
+            if row_coordinate not in range(1,4) or column_coordinate not in range(1, 4):
+                print("Coordinates should be from 1 to 3!")
+            else:
+                position = field[3 - int(column_coordinate)][int(row_coordinate) - 1]
+                if position == "_" or position == " ":
+                    field[3 - int(column_coordinate)][int(row_coordinate) - 1] = "X"
+                    field_printing(field)
+                    break
+                elif position == "X" or position == "O":
+                    print("This cell is occupied! Choose another one!")
+                    continue
+        except ValueError:
+            print("You should enter numbers!")
+
+
+
+
+#col = [[row[i] for row in field] for i in range(3)]
+#print (col[2])
+'''
 #main
 state_game = set()
 global liste
 liste = []
-answer = input("Enter cells: ")
-print("---------")
-print("|" + " " + answer[0] + " " + answer[1] + " " + answer[2] + " " + "|")
-print("|" + " " + answer[3] + " " + answer[4] + " " + answer[5] + " " + "|")
-print("|" + " " + answer[6] + " " + answer[7] + " " + answer[8] + " " + "|")
-print("---------")
-
 colonne_check(liste, state_game)
 liste = []
 ligne_check(liste, state_game)
@@ -91,4 +129,4 @@ elif "No_winner" in state_game:
     elif "_" not in answer and " " not in answer:
         print("Draw")
     elif "_" in answer or " " in answer:
-        print("Game not finished")
+        print("Game not finished")'''
