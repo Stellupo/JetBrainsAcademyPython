@@ -1,7 +1,6 @@
 import random
 
 def main_game(score):
-    move = ""
     while True:
         move = input('> ')
         if move == "!exit":
@@ -16,26 +15,14 @@ def main_game(score):
             if move == computer_move:
                 game_state = "Draw"
             elif move != computer_move:
-                if move =="rock":
-                    if computer_move == "scissors":
-                        game_state = "Win"
-                    elif computer_move == "paper":
-                        game_state = "Lose"
-                if move == "paper":
-                    if computer_move == "scissors":
-                        game_state = "Lose"
-                    elif computer_move == "rock":
-                        game_state = "Win"
-                if move == "scissors":
-                    if computer_move == "paper":
-                        game_state = "Win"
-                    elif computer_move == "rock":
-                        game_state = "Lose"
-                if move not in choices and move !="!exit":
+                if (move =="rock" and computer_move == "scissors") or (move == "paper" and computer_move == "scissors") or (move == "scissors" and computer_move == "paper"):
+                    game_state = "Win"
+                else:
+                    game_state = "Lose"
+                if move not in choices and move !="!exit" and move !="!rating":
                     print("Invalid input")
                     continue
             score = game_state_func(game_state,move,computer_move,score)
-
 
 def game_state_func(game_state,move,computer_move,score):
     if game_state == "Draw":
@@ -64,6 +51,40 @@ def user ():
     file.close()
     return score
 
+def start_menu(score):
+    user_output = input().split(",")
+    print("Okay, let's start")
+    if user_output == [""]:
+        main_game(score)
+    else:
+        options(user_output, score)
+
+def options(user_output, score):
+    while True:
+        move = input('> ')
+        if move == "!exit":
+            print("Bye!")
+            break
+        if move == "!rating":
+            print(score)
+        else:
+            if move in user_output:
+                user_output_copy = ((user_output[user_output.index(move) + 1:]) + user_output[0:user_output.index(move)])
+                computer_move = random.choice(user_output)
+                game_state = ""
+                if move == computer_move:
+                    game_state = "Draw"
+                elif move != computer_move:
+                    if move not in user_output and move != "!exit" and move != "!rating":
+                        print("Invalid input")
+                        continue
+                    if computer_move in user_output_copy[0:int((len(user_output_copy)/2))]:
+                        game_state = "Lose"
+                    else:
+                        game_state = "Win"
+                score = game_state_func(game_state, move, computer_move, score)
+
+
 
 score = int(user())
-game_state = main_game(score)
+game_state = start_menu(score)
