@@ -112,7 +112,7 @@ class BankMachine:
 
     def database(self, card_number, code_pin):
         req = 'INSERT INTO card (number, pin) VALUES (?,?)'
-        cur.execute(req, (card_number, code_pin)) 
+        cur.execute(req, (card_number, code_pin))
         conn.commit()
         cur.execute('SELECT * FROM card')
         table = cur.fetchall()
