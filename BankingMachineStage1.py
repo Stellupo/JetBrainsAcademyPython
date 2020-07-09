@@ -1,12 +1,22 @@
+import sqlite3
 import random
 
+# on ne doit le faire qu'une fois ! Pas chaque fois qu'une fonction est appelée
+
+conn = sqlite3.connect('card.s3db')
+cur = conn.cursor()
+cur.execute('CREATE TABLE IF NOT EXISTS card (id INTEGER PRIMARY KEY, number TEXT, pin TEXT , balance INTEGER DEFAULT 0)')
+conn.commit()
+cur.execute('DROP TABLE card')  # réinitialisation de la table, pour vider la mémoire
+conn.commit()
+cur.execute('CREATE TABLE IF NOT EXISTS card (id INTEGER PRIMARY KEY, number TEXT, pin TEXT , balance INTEGER DEFAULT 0)')
+conn.commit()
 
 class BankMachine:
     def __init__(self):
         self.state_bank = "Home"
         self.clients_database = []
         self.start_menu()
-
 
     def start_menu(self):
         print('''
@@ -65,12 +75,12 @@ class BankMachine:
                     print('\n' + 'Your card has been created')
                     print('Your card number:', card_number, sep="\n")
                     print('Your card PIN:', code_pin, sep="\n")
+                    self.database(card_number, code_pin)
                     break
                 elif card_number in self.clients_database:
                     continue
             elif card_number != card_number_test:
                 continue
-
 
     def login(self):
         print('\n' + 'Enter your card number: ')
@@ -99,6 +109,14 @@ class BankMachine:
         else:
             self.state_bank = "Account"
             print('Invalid answer')
+
+    def database(self, card_number, code_pin):
+        req = 'INSERT INTO card (number, pin) VALUES (?,?)'
+        cur.execute(req, (card_number, code_pin)) 
+        conn.commit()
+        cur.execute('SELECT * FROM card')
+        table = cur.fetchall()
+        print(table)
 
 
 # main
