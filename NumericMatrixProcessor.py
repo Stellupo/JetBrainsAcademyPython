@@ -12,6 +12,19 @@ def matrice_user(row_count, col_count):  # création d'une matrice à partir des
     return matrice
 
 
+def one_matrix(): #fonction appelée pour récupérer de l'utilisateur 1 matrice
+    # création de la matrice 1
+    try:
+        input_1 = input('Enter size of matrix > ').split()  # list(input())
+        row_count, col_count = int(input_1[0]), int(input_1[1])
+    except IndexError:
+        print('You should input two numbers separated by a space. Please try again !')
+        quit()
+    print('Enter matrix:')
+    matrice_1 = matrice_user(row_count, col_count)
+    return matrice_1, col_count
+
+
 def two_matrices(): #fonction appelée pour récupérer de l'utilisateur 2 matrices
     # création de la matrice 1
     try:
@@ -33,8 +46,9 @@ def two_matrices(): #fonction appelée pour récupérer de l'utilisateur 2 matri
 
 
 def menu():
-    print('1. Add matrices', '2. Multiply matrix by a constant', '3. Multiply matrices', '0. Exit', sep='\n')
+    print('1. Add matrices', '2. Multiply matrix by a constant', '3. Multiply matrices', '4. Transpose matrix', '0. Exit', sep='\n')
     user_choice = input('Your choice: > ')
+    print(" ")
     return user_choice
 
 # fonctions permettant de réaliser les 3 actions demandées par l'utilisateur
@@ -55,16 +69,7 @@ def matrice_add(input_1, input_2, matrice_1, matrice_2, col_count): # Somme des 
         print('ERROR')
 
 
-def multiply_constant():
-    # création de la matrice 1
-    try:
-        input_1 = input('Enter size of matrix > ').split()  # list(input())
-        row_count, col_count = int(input_1[0]), int(input_1[1])
-    except IndexError:
-        print('You should input two numbers separated by a space. Please try again !')
-        quit()
-    print('Enter matrix:')
-    matrice_1 = matrice_user(row_count, col_count)
+def multiply_constant(matrice_1, col_count):
     # multiplication
     input_2 = float(input('Enter constant : > '))
     matrice_multiplied = []
@@ -100,28 +105,68 @@ def multiply_matrice(matrice_1, matrice_2, col_count, row_count_2):
     else:
         print('The number of columns in the first matrix shoud be equal to the number of rowds of the second matrix')
 
+def transpose_matrix():
+    print('1. Main diagonal', '2. Side diagonal', '3. Vertical line', '4. Horizontal line', sep='\n')
+    user_choice = input('Your choice: > ')
+    print(" ")
+    if user_choice.isdigit():
+        user_choice = int(user_choice)
+        matrice_1, col_count = one_matrix()
+        if user_choice not in [1,2,3,4]:
+            print('Your answer should be a number between 0 and 4')
+            print('')
+        if user_choice in [1, 2, 3, 4]:
+            if user_choice == 1:
+                matrice_transposed = [[matrice_1[y][x] for y in range(len(matrice_1))] for x in range(len(matrice_1[0]))]
+            if user_choice == 2:
+                matrice_transposed = [[matrice_1[y][x] for y in range(len(matrice_1))] for x in range(len(matrice_1[0]))]
+                matrice_transposed.reverse()
+                matrice_transposed.reverse()
+                matrice_transposed.reverse()
+                for l in matrice_transposed:
+                    l.reverse()
+            if user_choice == 3:
+                matrice_transposed = matrice_1
+                for l in matrice_transposed:
+                    l.reverse()
+            if user_choice == 4:
+                matrice_transposed = matrice_1
+                matrice_transposed.reverse()
+        print('The result is:')
+        for num in range(len(matrice_transposed)):  # affichage de la liste de string avec un espace entre chaque élement de ligne
+            print((' '.join(matrice_transposed[num])))
+    else:
+        print('Your answer should be a number between 0 and 4')
+        print('')
+
+
 # main
 user_choice = ""
 while user_choice != 0:
     user_choice = menu()
     if user_choice.isdigit():
         user_choice = int(user_choice)
-        if user_choice == 1:
-            input_1, input_2, matrice_1, matrice_2, col_count, row_count_2 = two_matrices()
-            matrice_add(input_1, input_2, matrice_1, matrice_2, col_count)
-            print('')
-        if user_choice == 2:
-            multiply_constant()
-            print('')
-        if user_choice == 3:
-            input_1, input_2, matrice_1, matrice_2, col_count, row_count_2 = two_matrices()
-            multiply_matrice(matrice_1, matrice_2, col_count, row_count_2)
-            print('')
+        if user_choice in [1,2,3,4]:
+            if user_choice == 1:
+                input_1, input_2, matrice_1, matrice_2, col_count, row_count_2 = two_matrices()
+                matrice_add(input_1, input_2, matrice_1, matrice_2, col_count)
+                print('')
+            if user_choice == 2:
+                matrice_1, col_count = one_matrix()
+                multiply_constant(matrice_1, col_count)
+                print('')
+            if user_choice == 3:
+                input_1, input_2, matrice_1, matrice_2, col_count, row_count_2 = two_matrices()
+                multiply_matrice(matrice_1, matrice_2, col_count, row_count_2)
+                print('')
+            if user_choice == 4:
+                transpose_matrix()
+                print('')
         else:
-            print('Your answer should be a number between 0 and 3')
+            print('Your answer should be a number between 0 and 4')
             print('')
     else:
-        print('Your answer should be a number between 0 and 3')
+        print('Your answer should be a number between 0 and 4')
         print('')
 else:
     quit()
