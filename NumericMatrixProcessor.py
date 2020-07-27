@@ -46,12 +46,12 @@ def two_matrices(): #fonction appelée pour récupérer de l'utilisateur 2 matri
 
 
 def menu():
-    print('1. Add matrices', '2. Multiply matrix by a constant', '3. Multiply matrices', '4. Transpose matrix', '0. Exit', sep='\n')
+    print('1. Add matrices', '2. Multiply matrix by a constant', '3. Multiply matrices', '4. Transpose matrix', '5. Calculate a determinant', '0. Exit', sep='\n')
     user_choice = input('Your choice: > ')
     print(" ")
     return user_choice
 
-# fonctions permettant de réaliser les 3 actions demandées par l'utilisateur
+# fonctions permettant de réaliser les 5 actions possibles demandees par l'utilisateur
 
 
 def matrice_add(input_1, input_2, matrice_1, matrice_2, col_count): # Somme des deux matrices conditionnellement à leurs tailles
@@ -112,33 +112,52 @@ def transpose_matrix():
     if user_choice.isdigit():
         user_choice = int(user_choice)
         matrice_1, col_count = one_matrix()
-        if user_choice not in [1,2,3,4]:
-            print('Your answer should be a number between 0 and 4')
-            print('')
-        if user_choice in [1, 2, 3, 4]:
-            if user_choice == 1:
-                matrice_transposed = [[matrice_1[y][x] for y in range(len(matrice_1))] for x in range(len(matrice_1[0]))]
-            if user_choice == 2:
-                matrice_transposed = [[matrice_1[y][x] for y in range(len(matrice_1))] for x in range(len(matrice_1[0]))]
-                matrice_transposed.reverse()
-                matrice_transposed.reverse()
-                matrice_transposed.reverse()
-                for l in matrice_transposed:
-                    l.reverse()
-            if user_choice == 3:
-                matrice_transposed = matrice_1
-                for l in matrice_transposed:
-                    l.reverse()
-            if user_choice == 4:
-                matrice_transposed = matrice_1
-                matrice_transposed.reverse()
+        if user_choice == 1:
+            matrice_transposed = [[matrice_1[y][x] for y in range(len(matrice_1))] for x in range(len(matrice_1[0]))]
+        if user_choice == 2:
+            matrice_transposed = [[matrice_1[y][x] for y in range(len(matrice_1))] for x in range(len(matrice_1[0]))]
+            matrice_transposed.reverse()
+            matrice_transposed.reverse()
+            matrice_transposed.reverse()
+            for l in matrice_transposed:
+                l.reverse()
+        if user_choice == 3:
+            matrice_transposed = matrice_1
+            for l in matrice_transposed:
+                l.reverse()
+        if user_choice == 4:
+            matrice_transposed = matrice_1
+            matrice_transposed.reverse()
         print('The result is:')
         for num in range(len(matrice_transposed)):  # affichage de la liste de string avec un espace entre chaque élement de ligne
             print((' '.join(matrice_transposed[num])))
+        '''else:
+            print('Your answer should be a number between 0 and 4')
+            print('')
     else:
         print('Your answer should be a number between 0 and 4')
-        print('')
+        print('')'''
 
+
+def determinant(matrice_1):
+    #base case
+    if len(matrice_1) == 1:
+        return matrice_1[0][0]
+    if len(matrice_1) == 2:
+        result = (matrice_1[0][0]) * (matrice_1[1][1]) - ((matrice_1[0][1]) * (matrice_1[1][0]))
+        return result
+    else:  #recursive step
+        result = 0
+        for j in range(len(matrice_1[0])):
+            copy = [row[:] for row in matrice_1]  # copie de matrice_1
+            copy.pop(0) # suppression d'une ligne de la matrice_1, il est plus simple que ce soit la première comme ça on a (-1)^(1+col)
+            for item in copy:  # pour les lignes dans det
+                item.pop(j)  # suppression d'une colonne. Attention numéro de colonne = j + 1 car j est l'index
+            if j%2==0:  # si j est pair, on aura (-1)^(1+(j+1)))=1 * Minor
+                result += ((matrice_1[0][j]) * determinant(copy))
+            else:  # si j est impair, on aura (-1)^(1+(j+1)))=-1 * Minor
+                result -= ((matrice_1[0][j]) * determinant(copy))
+        return result
 
 # main
 user_choice = ""
@@ -146,22 +165,32 @@ while user_choice != 0:
     user_choice = menu()
     if user_choice.isdigit():
         user_choice = int(user_choice)
-        if user_choice in [1,2,3,4]:
-            if user_choice == 1:
-                input_1, input_2, matrice_1, matrice_2, col_count, row_count_2 = two_matrices()
-                matrice_add(input_1, input_2, matrice_1, matrice_2, col_count)
+        if user_choice == 1:
+            input_1, input_2, matrice_1, matrice_2, col_count, row_count_2 = two_matrices()
+            matrice_add(input_1, input_2, matrice_1, matrice_2, col_count)
+            print('')
+        if user_choice == 2:
+            matrice_1, col_count = one_matrix()
+            multiply_constant(matrice_1, col_count)
+            print('')
+        if user_choice == 3:
+            input_1, input_2, matrice_1, matrice_2, col_count, row_count_2 = two_matrices()
+            multiply_matrice(matrice_1, matrice_2, col_count, row_count_2)
+            print('')
+        if user_choice == 4:
+            transpose_matrix()
+            print('')
+        if user_choice == 5:
+            matrice_1, col_count = one_matrix()
+            for x in range(len(matrice_1)): # transformation de la matrice de string en matrice numérique
+                matrice_1[x] = [int(i) if i.isdigit() else float(i) for i in matrice_1[x]]
+            if col_count == len(matrice_1):    # condition de matrices carrées
+                print('The result is:')
+                print(determinant(matrice_1))
                 print('')
-            if user_choice == 2:
-                matrice_1, col_count = one_matrix()
-                multiply_constant(matrice_1, col_count)
-                print('')
-            if user_choice == 3:
-                input_1, input_2, matrice_1, matrice_2, col_count, row_count_2 = two_matrices()
-                multiply_matrice(matrice_1, matrice_2, col_count, row_count_2)
-                print('')
-            if user_choice == 4:
-                transpose_matrix()
-                print('')
+            else:
+                print('Your matrix should be a sqare matrix')
+                break
         else:
             print('Your answer should be a number between 0 and 4')
             print('')
@@ -170,10 +199,3 @@ while user_choice != 0:
         print('')
 else:
     quit()
-
-
-
-
-
-
-
