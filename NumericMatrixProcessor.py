@@ -178,11 +178,8 @@ def inverse(matrice_1, col_count):
                 for item in copy:  # pour les lignes dans copy
                     item.pop(j)  # suppression d'une colonne. Attention numéro de colonne = j + 1 car j est l'index
                 comatrix[m][j] = (-1)**(m+1+j+1)*determinant(copy)
-        #print(comatrix)
-        comatrix = [[comatrix[y][x] for y in range(len(comatrix))] for x in range(len(comatrix[0]))]
-        '''for num in range(len(comatrix)):  # affichage de la liste de string avec un espace entre chaque élement de ligne
-            print(comatrix[num])'''
         #main diagonal transposition
+        comatrix = [[comatrix[y][x] for y in range(len(comatrix))] for x in range(len(comatrix[0]))]
         # multiplication de la comatrice par l'inverse du déterminant
         matrice_multiplied = []
         print('The result is:')
