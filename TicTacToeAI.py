@@ -71,7 +71,6 @@ class TicTacToe:
         return self.result
 
     def user_move(self): # verifie que les coordonnees sont correctement rentrees
-        #if self.joueur_state == 'X':  # si c'est au tour du joueur de jouer
         move = input("Enter the coordinates: ").split(" ")
         if len(move) != 2:  # vérifier qu'on ait le bon nombre d'arguments
             print("You should enter numbers!")
@@ -99,11 +98,11 @@ class TicTacToe:
         while True:
             row_coordinate, column_coordinate = random.randint(1, 3), random.randint(1, 3)
             position = self.field[3 - int(column_coordinate)][int(row_coordinate) - 1]
-            if position == "_" or position == " ":  # si la place est libre
+            if position == "X" or position == "O": # si la place est prise
+                continue
+            elif position == "_" or position == " ":  # si la place est libre
                 self.result = self.game(row_coordinate, column_coordinate)
                 break
-            else:  # si la place est prise
-                continue
         return self.result
 
     def reinitialisation(self):
@@ -114,31 +113,37 @@ class TicTacToe:
         self.result = ""
 
     def main_menu(self):
+        game_level = ['easy', 'medium', 'hard']
         while True:
-            print('Input command: > ')
-            command = input()
+            command = input('Input command: > ').split()
             result = ""
-            if command in ['start user easy', 'start easy user', 'start user user', 'start easy easy']:
-                self.field_printing()
-                while result != 'stop':  # todo
-                    if command == 'start easy easy':
-                        result = self.AI_move()
-                    elif command == 'start user user':
-                        result = self.user_move()
-                    elif command == 'start user easy':
-                        if self.joueur_state == 'X':
-                            result = self.user_move()
-                        if self.joueur_state == 'O':
-                            result = self.AI_move()
-                    elif command == 'start easy user':
-                        if self.joueur_state == 'X':
-                            result = self.AI_move()
-                        if self.joueur_state == 'O':
-                            result = self.user_move()
-                self.reinitialisation()
-            if command == 'exit':
-                break
-            elif command != "exit" and command not in ['start user easy', 'start easy user', 'start user user', 'start easy easy']:
+            try: # on verifie qu'on ait tous les éléments de commande
+                if command[0] == 'start':
+                    self.field_printing()
+                    while result != 'stop':
+                        if command[1] == 'user' and command[2] in game_level:
+                            if self.joueur_state == 'X':
+                                result = self.user_move()
+                            elif self.joueur_state == 'O':
+                                result = self.AI_move()
+                        elif command[1] in game_level and command[2] == 'user':
+                            if self.joueur_state == 'X':
+                                result = self.AI_move()
+                            elif self.joueur_state == 'O':
+                                result = self.user_move()
+                        elif command[1] in game_level and command[2] in game_level:
+                                result = self.AI_move()
+                        elif command[1] == command[2] == 'user':
+                                result = self.user_move()
+                        else:
+                            print('Bad parameters')
+                    self.reinitialisation()
+                elif command[0] == 'exit':
+                    break
+                else:
+                    print('Bad parameters')
+                    continue
+            except IndexError:
                 print('Bad parameters')
                 continue
 
