@@ -8,17 +8,17 @@ class TicTacToe:
 
     def field_printing(self): # affiche le terrain en table
         print("-" * 9)
-        print("|" + " " + self.field[0][0] + " " + self.field[0][1] + " " + self.field[0][2] + " " + "|")
-        print("|" + " " + self.field[1][0] + " " + self.field[1][1] + " " + self.field[1][2] + " " + "|")
-        print("|" + " " + self.field[2][0] + " " + self.field[2][1] + " " + self.field[2][2] + " " + "|")
+        print("|" + " " + self.field[0][2] + " " + self.field[1][2] + " " + self.field[2][2] + " " + "|")
+        print("|" + " " + self.field[0][1] + " " + self.field[1][1] + " " + self.field[2][1] + " " + "|")
+        print("|" + " " + self.field[0][0] + " " + self.field[1][0] + " " + self.field[2][0] + " " + "|")
         print("-" * 9)
 
     def main_game(self, row_coordinate, column_coordinate): # place le pion du joueur X ou O sur la case selon son profil et met a jour le terrain
         if self.joueur_state == "X":
-            self.field[3 - int(column_coordinate)][int(row_coordinate) - 1] = "X"
+            self.field[int(row_coordinate) - 1][int(column_coordinate)-1] = "X"
             self.joueur_state = "O"
         elif self.joueur_state == "O":
-            self.field[3 - int(column_coordinate)][int(row_coordinate) - 1] = "O"
+            self.field[int(row_coordinate) - 1][int(column_coordinate)-1] = "O"
             self.joueur_state = "X"
         self.field_printing()
 
@@ -85,19 +85,18 @@ class TicTacToe:
                                                                                    4):  # vérifier qu'on ait les bons chiffres
                 print("Coordinates should be from 1 to 3!")
             else:
-                position = self.field[3 - int(column_coordinate)][int(row_coordinate) - 1]
+                position = self.field[int(row_coordinate) - 1][int(column_coordinate)-1]
                 if position == "X" or position == "O":
                     print("This cell is occupied! Choose another one!")
                 if position == "_" or position == " ":  # si la place est libre
                     self.result = self.game(row_coordinate, column_coordinate)
         return self.result
 
-    def AI_move(self):
-        #if self.joueur_state == 'O':
+    def AI_move_easy(self):
         print('Making move level "easy"')
         while True:
             row_coordinate, column_coordinate = random.randint(1, 3), random.randint(1, 3)
-            position = self.field[3 - int(column_coordinate)][int(row_coordinate) - 1]
+            position = self.field[int(row_coordinate) - 1][int(column_coordinate)-1]
             if position == "X" or position == "O": # si la place est prise
                 continue
             elif position == "_" or position == " ":  # si la place est libre
@@ -125,14 +124,14 @@ class TicTacToe:
                             if self.joueur_state == 'X':
                                 result = self.user_move()
                             elif self.joueur_state == 'O':
-                                result = self.AI_move()
+                                result = self.AI_move_easy()
                         elif command[1] in game_level and command[2] == 'user':
                             if self.joueur_state == 'X':
-                                result = self.AI_move()
+                                result = self.AI_move_easy()
                             elif self.joueur_state == 'O':
                                 result = self.user_move()
                         elif command[1] in game_level and command[2] in game_level:
-                                result = self.AI_move()
+                                result = self.AI_move_easy()
                         elif command[1] == command[2] == 'user':
                                 result = self.user_move()
                         else:
@@ -148,8 +147,14 @@ class TicTacToe:
                 continue
 
 
+
+
+
 game_instance = TicTacToe()
 
 # appel de la fonction principale
 
 game_instance.main_menu()
+#todo définir une fonction medium qui fasse réagir l'ordi selon la difficulté (2 pions)
+# intégrer dans la fonction Ai move la différence entre niveaux
+# segementer dans main menu pour plus de clarté
