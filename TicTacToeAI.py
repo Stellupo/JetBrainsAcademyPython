@@ -6,21 +6,23 @@ class TicTacToe:
         self.reinitialisation()
         #self.field_printing()
 
+
+    def reinitialisation(self):
+        self.field = [[" ", " ", " "], [" ", " ", " "],[" ", " ", " "]]  # [[column for column in range(3)] for row in range(3)]x
+        self.field_liste = [" ", " ", " ", " ", " ", " ", " ", " ", " "]
+        self.joueur_state = "X"
+        self.state_game = set()
+        self.result = ""
+        self.game_level = ['easy', 'medium', 'hard']
+        self.command = ""
+
+
     def field_printing(self): # affiche le terrain en table
         print("-" * 9)
         print("|" + " " + self.field[0][2] + " " + self.field[1][2] + " " + self.field[2][2] + " " + "|")
         print("|" + " " + self.field[0][1] + " " + self.field[1][1] + " " + self.field[2][1] + " " + "|")
         print("|" + " " + self.field[0][0] + " " + self.field[1][0] + " " + self.field[2][0] + " " + "|")
         print("-" * 9)
-
-    def main_game(self, row_coordinate, column_coordinate): # place le pion du joueur X ou O sur la case selon son profil et met a jour le terrain
-        if self.joueur_state == "X":
-            self.field[int(row_coordinate) - 1][int(column_coordinate)-1] = "X"
-            self.joueur_state = "O"
-        elif self.joueur_state == "O":
-            self.field[int(row_coordinate) - 1][int(column_coordinate)-1] = "O"
-            self.joueur_state = "X"
-        self.field_printing()
 
     def update_fieldliste(self): # met a jour la liste des cases du terrain
         self.field_liste = [elements for row in self.field for elements in row]
@@ -64,8 +66,9 @@ class TicTacToe:
                 return ""
 
     def game(self, row_coordinate, column_coordinate):  #
-        self.main_game(row_coordinate, column_coordinate) # place le pion
-        self.field_liste = self.update_fieldliste() # met a jour le terrain et la liste des cases
+        self.field[int(row_coordinate) - 1][int(column_coordinate) - 1] = self.joueur_state # place le pion
+        self.field_printing()  # affiche le terrain mis à jour
+        self.field_liste = self.update_fieldliste() # met a jour la liste des cases
         self.check_game() # verifie s'il y a un gagnant ou non
         self.result = self.state_game_func() # renvoie le resultat (Win, Draw ou Vide)
         return self.result
@@ -104,40 +107,51 @@ class TicTacToe:
                 break
         return self.result
 
-    def reinitialisation(self):
-        self.field = [[" ", " ", " "], [" ", " ", " "],[" ", " ", " "]]  # [[column for column in range(3)] for row in range(3)]x
-        self.field_liste = [" ", " ", " ", " ", " ", " ", " ", " ", " "]
-        self.joueur_state = "X"
-        self.state_game = set()
-        self.result = ""
+    def AI_move_medium(self):
+        print('Making move level "medium"')
+        # check diagonale principale
+        main_diag = [self.field[0][2],self.field[1][1],self.field[2][0]]
+        if main_diag.count("X") == 2 or main_diag.count("O") == 2:
+            for m in range(3):
+                if self.field[m][2-m] == " " or self.field[m][2-m] == "_":
+                    self.game(m+1,2-m+1)
+        # check diagonale secondaire
+        diag_sec = [self.field[0][0],self.field[1][1],self.field[2][2]]
+        if diag_sec.count("X") == 2 or diag_sec.count("O") == 2:
+            for m in range(3):
+                if self.field[m][m] == " " or self.field[m][m] == "_":
+                    self.game(m+1,m+1)
+        # check ligne
+        for i in range(3):
+            if self.field[i].count("X") == 2 or self.field[i].count("O")==2:
+                for j in range(3):
+                    if self.field[i][j] == "_"  or self.field[i][j]== " " :
+                            self.game(i+1,j+1)
+        # check colonne
+            column = [self.field[0][i],self.field[1][i],self.field[2][i]]
+            if column.count("X") == 2 or column.count("O") == 2 :
+                for k in range(3):
+                    if column[k] == "_" or column[k] == " ":
+                        self.game(k+1,i+1)
 
     def main_menu(self):
-        game_level = ['easy', 'medium', 'hard']
         while True:
-            command = input('Input command: > ').split()
-            result = ""
+            self.command = input('Input command: > ').split(' ')
             try: # on verifie qu'on ait tous les éléments de commande
-                if command[0] == 'start':
-                    self.field_printing()
-                    while result != 'stop':
-                        if command[1] == 'user' and command[2] in game_level:
-                            if self.joueur_state == 'X':
-                                result = self.user_move()
-                            elif self.joueur_state == 'O':
-                                result = self.AI_move_easy()
-                        elif command[1] in game_level and command[2] == 'user':
-                            if self.joueur_state == 'X':
-                                result = self.AI_move_easy()
-                            elif self.joueur_state == 'O':
-                                result = self.user_move()
-                        elif command[1] in game_level and command[2] in game_level:
-                                result = self.AI_move_easy()
-                        elif command[1] == command[2] == 'user':
-                                result = self.user_move()
-                        else:
-                            print('Bad parameters')
+                if self.command[0] == 'start':
+                    if self.command[1] == 'easy' or self.command[2] == 'easy':
+                        if self.command[1] == 'user' and self.command[2] == 'easy':
+                            self.start(self.user_move, self.AI_move_easy)
+                        elif self.command[1] == 'easy' and self.command[2] == 'user':
+                            self.start(self.AI_move_easy, self.user_move)
+                        elif self.command[1] == 'easy' and self.command[2] == 'easy':
+                            self.start(self.AI_move_easy, self.AI_move_easy)
+                    elif self.command[1] == self.command[2] == 'user':
+                        self.start(self.user_move, self.user_move)
+                    else:
+                        print('Bad parameters')
                     self.reinitialisation()
-                elif command[0] == 'exit':
+                elif self.command[0] == 'exit':
                     break
                 else:
                     print('Bad parameters')
@@ -145,6 +159,17 @@ class TicTacToe:
             except IndexError:
                 print('Bad parameters')
                 continue
+
+    def start(self,func1, func2):
+        self.field_printing()
+        while self.result != 'stop':
+            if abs(self.field_liste.count("X") == self.field_liste.count("O")):
+                self.joueur_state = 'X'
+                func1()
+            elif abs(self.field_liste.count("X") > self.field_liste.count("O")):
+                self.joueur_state = "O"
+                func2()
+
 
 
 
