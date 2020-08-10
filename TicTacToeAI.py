@@ -1,5 +1,5 @@
 import random
-
+from math import inf as infinity
 
 class TicTacToe:
     def __init__(self):
@@ -22,47 +22,39 @@ class TicTacToe:
         print("-" * 9)
 
 
-    def check_game(self): # verifie s'il y a un gagnant et stocke le résultat dans state_game
+    def check_game(self, liste): # verifie s'il y a un gagnant et stocke le résultat dans state_game
         # check diagonale principale
-        if self.field_liste[0] == self.field_liste[4] == self.field_liste[8]=="X":
-            self.state_game.add("X_winner")
-        elif self.field_liste[0] == self.field_liste[4] == self.field_liste[8]=="O":
-            self.state_game.add("O winner")
+        if "_" not in liste and " " not in liste:
+            self.state_game.add("Draw")
+        elif liste[0] == liste[4] == liste[8]== self.joueur_state:
+            self.state_game.add(self.joueur_state + "winner")
         # check diagonale secondaire
-        elif self.field_liste[2] == self.field_liste[4] == self.field_liste[6]=="X":
-            self.state_game.add("X_winner")
-        elif self.field_liste[2] == self.field_liste[4] == self.field_liste[6] == "O":
-            self.state_game.add("O winner")
+        elif liste[2] == liste[4] == liste[6]== self.joueur_state:
+            self.state_game.add(self.joueur_state + " winner")
         else:
             for i in range(0, 9, 3):  # check ligne
-                if self.field_liste[i] == self.field_liste[i + 1] == self.field_liste[i + 2] == "X":
-                    self.state_game.add("X_winner")
-                elif self.field_liste[i] == self.field_liste[i + 1] == self.field_liste[i + 2] == "O":
-                    self.state_game.add("O winner")
+                if liste[i] == liste[i + 1] == liste[i + 2] == self.joueur_state:
+                    self.state_game.add(self.joueur_state + " winner")
             for i in range(3):  # check colonne
-                if self.field_liste[i] == self.field_liste[i + 3] == self.field_liste[i + 6]=="X":
-                    self.state_game.add("X_winner")
-                elif self.field_liste[i] == self.field_liste[i + 3] == self.field_liste[i + 6] == "O":
+                if liste[i] == liste[i + 3] == liste[i + 6]== self.joueur_state:
+                    self.state_game.add(self.joueur_state + " winner")
+                elif liste[i] == liste[i + 3] == liste[i + 6] == "O":
                     self.state_game.add("O winner")
 
     def state_game_func(self): # affiche le résultat du jeu ou renvoie un resultat vide
-        if "X_winner" in self.state_game:
-            print("X wins")
+        if ("O winner") in self.state_game or ("X winner") in self.state_game:
+            print(self.joueur_state, "wins")
             return "stop"
-        elif "O winner" in self.state_game:
-            print("O wins")
+        elif "Draw" in self.state_game:
+            print("Draw")
             return "stop"
         else:
-            if "_" not in self.field_liste and " " not in self.field_liste:
-                print("Draw")
-                return "stop"
-            elif "_" in self.field_liste or " " in self.field_liste:
-                return ""
+            return ""
 
     def game(self, position):  #
         self.field_liste[position] = self.joueur_state # place le pion
         self.field_printing()  # affiche le terrain mis à jour
-        self.check_game() # verifie s'il y a un gagnant ou non
+        self.check_game(self.field_liste) # verifie s'il y a un gagnant ou non
         self.result = self.state_game_func() # renvoie le resultat (Win, Draw ou Vide)
 
     def user_move(self): # verifie que les coordonnees sont correctement rentrees
@@ -108,6 +100,79 @@ class TicTacToe:
         else:
             self.game(AI_move)
 
+    def AI_move_hard(self):
+        print('Making move level "hard"')
+        if self.field_liste.count(' ') == 9 :
+            self.random_move()
+        else:
+            index = self.minimax(self.field_liste, self.joueur_state)[0]
+            self.game(index)
+
+
+    def minimax(self, board,player):
+        # verifie s'il y a un gagnant ou non
+        self.check_game(board)
+
+        if self.state_game == str(player + " winner"): # si je perds
+            return ['index', -10]
+            self.state_game = set()  # reinitialisation
+        if len(self.available_spots(board)) == 0:
+            return ['index', 0]
+            self.state_game = set()  # reinitialisation
+        if self.state_game != set() and self.state_game != "Draw": # si je gagne
+            return ['index', 10]
+            self.state_game = set()  # reinitialisation
+
+
+        moves = []
+
+        for elements in self.available_spots(board):
+            move = {
+                'index': elements,
+                'score': None
+            }  # on enregistre les index
+            newboard = self.copy_game_state(board)    # place le pion
+            newboard[elements] = player
+
+            # changement de profil
+            if player == "X":
+                move['score'] = self.minimax(newboard, 'O')[1]
+            elif player == "O": # AI
+                move['score'] = self.minimax(newboard, 'X')[1]
+
+            moves.append(move)
+
+        index = None
+        if player == 'X':
+            bestscore = -infinity
+            for number_of_specific_move in range(len(moves)):
+                if moves[number_of_specific_move]['score'] > bestscore:
+                    index = moves[number_of_specific_move]['index']
+                    bestscore = moves[number_of_specific_move]['score']
+        else:
+            bestscore = +infinity
+            for number_of_specific_move in range(len(moves)):
+                if moves[number_of_specific_move]['score'] < bestscore:
+                    index = moves[number_of_specific_move]['index']
+                    bestscore = moves[number_of_specific_move]['score']
+        return [index, bestscore]
+
+
+
+    def copy_game_state(self, board):
+        newboard = [" ", " ", " ", " ", " ", " ", " ", " ", " "]
+        for i in range(len(board)):
+            newboard[i] = board[i]
+        return newboard
+
+    def available_spots(self,board):
+        #check les places libres
+        availablepositions = []
+        for i in range(len(board)):  # on parcourt les valeurs de field_liste
+            if board[i] == " ":  # si la place est libre
+                availablepositions.append(i)  # on ajoute l'index à la liste availablepositions
+        return availablepositions
+
 
     def win_in_one_move(self):
         main_diag = [self.field_liste[0],self.field_liste[4],self.field_liste[8]]
@@ -149,9 +214,11 @@ class TicTacToe:
                     break
                 else:
                     print('Bad parameters')
+                    self.reinitialisation()
                     continue
             except IndexError:
                 print('Bad parameters')
+                self.reinitialisation()
                 continue
 
     def gamelevel(self):
@@ -164,6 +231,8 @@ class TicTacToe:
                 self.start(self.AI_move_easy, self.AI_move_easy)
             elif self.command[1] == 'easy' and self.command[2] == 'medium':
                 self.start(self.AI_move_easy, self.AI_move_medium)
+            elif self.command[1] == 'easy' and self.command[2] == 'hard':
+                self.start(self.AI_move_easy, self.AI_move_hard)
        if self.command[1] == 'medium' or self.command[2] == 'medium':
            if self.command[1] == 'user' and self.command[2] == 'medium':
                self.start(self.user_move, self.AI_move_medium)
@@ -173,6 +242,19 @@ class TicTacToe:
                self.start(self.AI_move_medium, self.AI_move_medium)
            elif self.command[1] == 'medium' and self.command[2] == 'easy':
                self.start(self.AI_move_medium, self.AI_move_easy)
+           elif self.command[1] == 'medium' and self.command[2] == 'hard':
+               self.start(self.AI_move_medium, self.AI_move_hard)
+       if self.command[1] == 'hard' or self.command[2] == 'hard':
+           if self.command[1] == 'user' and self.command[2] == 'hard':
+               self.start(self.user_move, self.AI_move_hard)
+           elif self.command[1] == 'hard' and self.command[2] == 'user':
+               self.start(self.AI_move_hard, self.user_move)
+           elif self.command[1] == 'hard' and self.command[2] == 'hard':
+               self.start(self.AI_move_hard, self.AI_move_hard)
+           elif self.command[1] == 'hard' and self.command[2] == 'easy':
+               self.start(self.AI_move_hard, self.AI_move_easy)
+           elif self.command[1] == 'hard' and self.command[2] == 'medium':
+               self.start(self.AI_move_hard, self.AI_move_medium)
 
     def start(self,func1, func2):
         self.field_printing()
