@@ -108,9 +108,6 @@ class TicTacToe:
 
     def AI_move_hard(self):
         print('Making move level "hard"')
-        #if self.field_liste.count(' ') == 9 :
-            #self.random_move()
-        #else:
         index = self.minimax(self.field_liste, self.joueur_state)[0]
         self.game(index, self.joueur_state)
 
