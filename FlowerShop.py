@@ -1,5 +1,5 @@
 import itertools
-flower_names = ['rose', 'tulip', 'sunflower','daisy']
+flower_names = ['rose', 'tulip', 'sunflower', 'daisy']
 for i in range(1, 4):
     iter = itertools.combinations(flower_names, i)
     for combo in iter:
