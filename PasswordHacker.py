@@ -19,7 +19,7 @@ def combinaison(word):
 
 # cette fonction cree des mdp à partir des lettres de la liste, alternant entre minuscule et majuscule
 def password_creation(liste):
-    for a in itertools.product(*liste): 
+    for a in itertools.product(*liste):
         word = str("".join(a))
         yield word
 
